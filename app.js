@@ -14,6 +14,7 @@ const Employee = require("./lib/Employee");
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
+// Defining quesions for each employee
 const managerQuestions = [
   {
     type: "input",
@@ -113,10 +114,13 @@ const internQuestions = [
   },
 ];
 
+// Setting an empty array for information to be pushed into
 const employeeArray = [];
 
+// Defining prompt function that will be responsible for calling the prompts
 function promptedQuestion(questionlist) {
   inquirer.prompt(questionlist).then((response) => {
+    // Writing conditinals for: if the parameter questionlist is equal to any one of the employee quesiton arrays
     if (questionlist === managerQuestions) {
       employeeArray.push(new Manager(response.managerName, response.managerId, response.managerEmail, response.managerOfficeNumber));
     } else if (questionlist === engineerQuestions) {
@@ -125,10 +129,12 @@ function promptedQuestion(questionlist) {
       employeeArray.push(new Intern(response.internName, response.internId, response.internEmail, response.internSchool));
     }
 
+    // Conditionals for: if the response.addedTeamMember is equal to any one of the chosen strings, then call the question list it corresponds with
     if (response.addedTeamMember === "Engineer") {
       promptedQuestion(engineerQuestions);
     } else if (response.addedTeamMember === "Intern") {
       promptedQuestion(internQuestions);
+    // else statement for: if response.addedTeamMember is not one of the above strings, then write the HTML file
     } else {
       fs.writeFile(outputPath, render(employeeArray), (err) => {
         if (err) {
