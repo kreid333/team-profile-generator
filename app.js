@@ -9,6 +9,7 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const Employee = require("./lib/Employee");
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
@@ -31,7 +32,7 @@ const managerQuestions = [
   },
   {
     type: "input",
-    name: "managerOfficerNumber",
+    name: "managerOfficeNumber",
     message: "What is your manager's office number?",
   },
   {
@@ -97,8 +98,8 @@ const internQuestions = [
   },
   {
     type: "input",
-    name: "internGitHub",
-    message: "What is your intern's GitHub username?",
+    name: "internSchool",
+    message: "What school are you attending?",
   },
   {
     type: "list",
@@ -112,13 +113,34 @@ const internQuestions = [
   },
 ];
 
+const employeeArray = [];
+
 function promptedQuestion(questionlist) {
   inquirer.prompt(questionlist).then((response) => {
+    if (questionlist === managerQuestions) {
+      employeeArray.push(new Manager(response.managerName, response.managerId, response.managerEmail, response.managerOfficeNumber));
+    } else if (questionlist === engineerQuestions) {
+      employeeArray.push(new Engineer(response.engineerName, response.engineerId, response.engineerEmail, response.engineerGitHub));
+    } else if (questionlist === internQuestions) {
+      employeeArray.push(new Intern(response.internName, response.internId, response.internEmail, response.internSchool));
+    }
+
     if (response.addedTeamMember === "Engineer") {
       promptedQuestion(engineerQuestions);
     } else if (response.addedTeamMember === "Intern") {
       promptedQuestion(internQuestions);
+    } else {
+      fs.writeFile(outputPath, render(employeeArray), (err) => {
+        if (err) {
+          return err;
+        }
+        console.log("Wrote to new file!")
+      });
     }
+  }).catch((err) => {
+    if(err) {
+      return err;
+    };
   });
 }
 
